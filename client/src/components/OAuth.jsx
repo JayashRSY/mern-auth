@@ -1,9 +1,10 @@
 import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
 import { app } from "../firebase";
-import { useDispatch } from "react-redux";
-import { signInSuccess } from "../redux/user/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { signInFailure, signInSuccess } from "../redux/user/userSlice";
 
 const OAuth = () => {
+  const { loading } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const handleGoogleClick = async () => {
     try {
@@ -18,10 +19,10 @@ const OAuth = () => {
       });
       const data = await res.json();
       if (data.success) {
-        dispatch(signInSuccess(data));
+        dispatch(signInSuccess(data.user));
       }
     } catch (error) {
-      console.log(error);
+      dispatch(signInFailure(error));
     }
   };
   return (
@@ -30,7 +31,7 @@ const OAuth = () => {
       onClick={handleGoogleClick}
       className="bg-red-700 text-white rounded-lg p-3 uppercase hover:opacity-95"
     >
-      Continue with Google
+      {loading ? "Loading..." : "Continue with Google"}
     </button>
   );
 };

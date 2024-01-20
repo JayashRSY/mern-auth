@@ -1,33 +1,34 @@
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
-const Header = () => {
+export default function Header() {
+  const { currentUser } = useSelector((state) => state.user);
   return (
-    <>
-      <div className="bg-slate-200">
-        <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
+    <div className="bg-slate-200">
+      <div className="flex justify-between items-center max-w-6xl mx-auto p-3">
+        <Link to="/">
+          <h1 className="font-bold">MERN AUTH</h1>
+        </Link>
+        <ul className="flex gap-4">
           <Link to="/">
-            <div className="text-2xl font-bold text-slate-900">Auth App</div>
+            <li>Home</li>
           </Link>
-          <div className="flex space-x-3">
-            <Link to="/Home">
-              <div className="text-slate-900 font-bold">Home</div>
-            </Link>
-            <Link to="/about">
-              <div className="text-slate-900 font-bold">About</div>
-            </Link>
-            <Link to="/profile">
-              <div className="text-slate-900 font-bold">Profile</div>
-            </Link>
-            <Link to="/signin">
-              <div className="text-slate-900 font-bold">Sign In</div>
-            </Link>
-            <Link to="/signup">
-              <div className="text-slate-900 font-bold">Sign Up</div>
-            </Link>
-          </div>
-        </div>
+          <Link to="/about">
+            <li>About</li>
+          </Link>
+          <Link to="/profile">
+            {currentUser ? (
+              <img
+                src={currentUser.profilePicture}
+                alt="profile"
+                className="h-7 w-7 rounded-full object-cover"
+              />
+            ) : (
+              <li>Sign In</li>
+            )}
+          </Link>
+        </ul>
       </div>
-    </>
+    </div>
   );
-};
-export default Header;
+}
