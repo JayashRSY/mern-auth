@@ -10,6 +10,7 @@ export const signup = async (req, res, next) => {
         const newUser = new User({ username, email, password: hashedPassword });
         await newUser.save();
         res.status(201).json({
+            success: true,
             message: "User created successfully",
             user: newUser,
         })
@@ -28,7 +29,9 @@ export const signin = async (req, res, next) => {
         const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
         const { password: hashedPassword, ...userDetails } = validUser._doc;
         res.cookie('accessToken', token, { httpOnly: true })
-            .status(200).json({
+            .status(200)
+            .json({
+                success: true,
                 message: "User logged in successfully",
                 user: userDetails,
             })
