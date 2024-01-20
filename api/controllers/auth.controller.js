@@ -9,11 +9,12 @@ export const signup = async (req, res, next) => {
         const hashedPassword = bcryptjs.hashSync(password, 12); // hashSync is asynchronous (no need for await)
         const newUser = new User({ username, email, password: hashedPassword });
         await newUser.save();
-        res.status(201).json({
-            success: true,
-            message: "User created successfully",
-            user: newUser,
-        })
+        res.status(201)
+            .json({
+                success: true,
+                message: "User created successfully",
+                user: newUser,
+            })
     } catch (error) {
         next(error);
     }
@@ -35,6 +36,45 @@ export const signin = async (req, res, next) => {
                 message: "User logged in successfully",
                 user: userDetails,
             })
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const google = async (req, res, next) => {
+    try {
+        const { username: displayName, email, photo: photoURL } = req.body;
+        let user = await User.findOne({ email });
+        if (user) {
+            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+            const { password: hashedPassword, ...userDetails } = user._doc;
+            res.cookie('accessToken', token, { httpOnly: true })
+                .status(200)
+                .json({
+                    success: true,
+                    message: "User logged in successfully",
+                    user: userDetails,
+                })
+        } else {
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 12);
+            const newUser = new User({
+                username: displayName.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-8),
+                email,
+                password: hashedPassword,
+                profilePicture: photoURL
+            });
+            const res = await newUser.save();
+            const token = jwt.sign({ id: res._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
+            const { password: savedHashedPassword, ...userDetails } = res._doc;
+            res.cookie('accessToken', token, { httpOnly: true })
+                .status(201)
+                .json({
+                    success: true,
+                    message: "User created successfully",
+                    user: userDetails,
+                })
+        }
     } catch (error) {
         next(error);
     }
