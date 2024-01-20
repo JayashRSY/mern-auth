@@ -4,21 +4,22 @@ import {
   signInStart,
   signInSuccess,
   signInFailure,
-} from "../redux/user/userSlice.js";
+} from "../redux/user/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import OAuth from "../components/OAuth";
 
 const SignIn = () => {
   const [formData, setFormData] = useState({});
   const { loading, error } = useSelector((state) => state.user);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(signInStart());
     try {
       dispatch(signInStart());
       const res = await fetch("/api/auth/signin", {
@@ -29,7 +30,7 @@ const SignIn = () => {
         body: JSON.stringify(formData),
       });
       const data = await res.json();
-      if (data && !data.success) {
+      if (data.success === false) {
         dispatch(signInFailure(data));
         return;
       }
@@ -58,7 +59,6 @@ const SignIn = () => {
           onChange={handleChange}
         />
         <button
-          type="submit"
           disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
         >
@@ -66,18 +66,14 @@ const SignIn = () => {
         </button>
         <OAuth />
       </form>
-      <div className="">
-        <p className="text-center mt-5">
-          Create an new account?{" "}
-          <Link to="/signup">
-            <span className="text-blue-700 hover:underline cursor-pointer">
-              Sign Up
-            </span>
-          </Link>
-        </p>
+      <div className="flex gap-2 mt-5">
+        <p>Create new account?</p>
+        <Link to="/signup">
+          <span className="text-blue-500">Sign up</span>
+        </Link>
       </div>
-      <p className="text-red-700 mt-5 text-center">
-        {error ? error || "Something went wrong!" : ""}
+      <p className="text-red-700 mt-5">
+        {error ? error.message || "Something went wrong!" : ""}
       </p>
     </div>
   );

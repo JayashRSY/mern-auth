@@ -10,10 +10,12 @@ const SignUp = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
+      setError(false);
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
@@ -23,13 +25,9 @@ const SignUp = () => {
       });
       const data = await res.json();
       setLoading(false);
-      if (data.success) {
-        setError(false);
-        setFormData({});
-        alert(data.message);
-      } else {
+      if (data.success === false) {
         setError(true);
-        alert(data.message);
+        return;
       }
       navigate("/signin");
     } catch (error) {
@@ -63,7 +61,6 @@ const SignUp = () => {
           onChange={handleChange}
         />
         <button
-          type="submit"
           disabled={loading}
           className="bg-slate-700 text-white p-3 rounded-lg uppercase hover:opacity-95 disabled:opacity-80"
         >
@@ -71,19 +68,13 @@ const SignUp = () => {
         </button>
         <OAuth />
       </form>
-      <div className="">
-        <p className="text-center mt-5">
-          Already have an account?{" "}
-          <Link to="/signin">
-            <span className="text-blue-700 hover:underline cursor-pointer">
-              Sign In
-            </span>
-          </Link>
-        </p>
+      <div className="flex gap-2 mt-5">
+        <p>Have an account?</p>
+        <Link to="/signin">
+          <span className="text-blue-500">Sign in</span>
+        </Link>
       </div>
-      <p className="text-red-700 mt-5 text-center">
-        {error && "Something went wrong!"}
-      </p>
+      <p className="text-red-700 mt-5">{error && "Something went wrong!"}</p>
     </div>
   );
 };
