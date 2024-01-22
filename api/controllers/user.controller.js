@@ -10,7 +10,7 @@ export const userController = (req, res, next) => {
         next(error);
     }
 }
-export const updateUser = () => {
+export const updateUser = (req, res, next) => {
     if (req.user.id !== req.params.id) {
         return next(errorHandler(403, "Forbidden"));
     }
